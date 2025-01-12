@@ -5,11 +5,12 @@ const sendChatbtn = document.querySelector(".chat-input span");
 const chatbox = document.querySelector(".chatbox");
 
 let userMessage = null; // Variable to store user's message
-const API_KEY = ""; // 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
+const API_KEY =
+  "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";
 const inputInitHeight = chatInput.scrollHeight;
 
 const createChatLi = (message, className) => {
-  //Create a chat <li> element with passed message and class name
+  // Create a chat <li> element with passed message and class name
   const chatLi = document.createElement("li");
   chatLi.classList.add("chat", className);
   let chatContent =
@@ -18,11 +19,10 @@ const createChatLi = (message, className) => {
       : `<span class="material-symbols-outlined">smart_toy</span><p></p>`;
   chatLi.innerHTML = chatContent;
   chatLi.querySelector("p").textContent = message;
-  return chatLi; // return chat <li> element
+  return chatLi; // Return chat <li> element
 };
 
 const generateResponse = (incomingChatli) => {
-  // Generate a random response from the bot
   const API_URL = "https://api.openai.com/v1/chat/completions";
   const messageElement = incomingChatli.querySelector("p");
 
@@ -43,13 +43,20 @@ const generateResponse = (incomingChatli) => {
     }),
   };
 
-  // Send POST request to API, get a response and set the response as paragraph text
   fetch(API_URL, requestOptions)
-    .then((res) => res.json())
-    .then((data) => {
-      messageElement.textContent = data.choices[0].message.content.trim();
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`API error: ${res.status}`);
+      }
+      return res.json();
     })
-    .catch(() => {
+    .then((data) => {
+      console.log("API Response:", data); // Debugging
+      messageElement.textContent =
+        data.choices[0]?.message?.content.trim() || "No response.";
+    })
+    .catch((error) => {
+      console.error("Fetch Error:", error); // Debugging
       messageElement.classList.add("error");
       messageElement.textContent =
         "Oops Something went wrong. Please try again.";
